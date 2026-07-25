@@ -2,7 +2,16 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../../services/api';
 
 const savedToken = localStorage.getItem('smart_pds_token') || null;
-const savedUser = JSON.parse(localStorage.getItem('smart_pds_user') || 'null');
+
+let savedUser = null;
+try {
+  const rawUser = localStorage.getItem('smart_pds_user');
+  if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
+    savedUser = JSON.parse(rawUser);
+  }
+} catch (e) {
+  savedUser = null;
+}
 
 export const loginUser = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {

@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "Smart PDS REST API Collection",
+    "description": "API collection for Smart Public Distribution System (Smart PDS) Major Project",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Distributor",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/distributor/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rajesh Sharma\",\n  \"email\": \"distributor@example.com\",\n  \"password\": \"Distributor@123\",\n  \"phone\": \"9811223344\",\n  \"distributorGovtId\": \"DIS998877\",\n  \"aadhaarNumber\": \"123456789012\",\n  \"shopName\": \"Janata Fair Price Shop #42\",\n  \"shopAddress\": \"Shop No. 12, Main Market Road\",\n  \"areaWard\": \"Ward 12 - North Zone\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Consumer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/consumer/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramesh Kumar\",\n  \"email\": \"consumer@example.com\",\n  \"password\": \"Consumer@123\",\n  \"phone\": \"9988776655\",\n  \"rationCardNo\": \"RC100200300\",\n  \"headOfHouseholdName\": \"Ramesh Kumar\",\n  \"address\": \"H.No. 45, Gali No. 3, North Block\",\n  \"familyMembers\": [\n    {\n      \"name\": \"Ramesh Kumar\",\n      \"relation\": \"Self (Head)\",\n      \"dateOfBirth\": \"1980-05-15\",\n      \"aadhaarNumber\": \"987654321098\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@smartpds.gov.in\",\n  \"password\": \"Admin@123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Verification Queue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/verification-queue"
+          }
+        },
+        {
+          "name": "Allocate Stock",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/stock-allocation",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shopId\": \"SHOP_ID_HERE\",\n  \"monthYear\": \"2026-07\",\n  \"item\": \"Rice\",\n  \"quantityKg\": 500\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "e-POS Terminal",
+      "item": [
+        {
+          "name": "Step 1: Scan Ration Card",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/distributor/epos/scan",
+            "body": { "mode": "raw", "raw": "{\n  \"rationCardNo\": \"RC100200300\"\n}" }
+          }
+        },
+        {
+          "name": "Step 2: Biometric Fingerprint Check",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/distributor/epos/verify",
+            "body": { "mode": "raw", "raw": "{\n  \"consumerId\": \"CONSUMER_ID\",\n  \"fingerprintHash\": \"FINGERPRINT_MATCH_APPROVED\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}

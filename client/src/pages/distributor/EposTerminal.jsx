@@ -5,8 +5,7 @@ import {
   verifyFingerprint, 
   dispenseRation, 
   generateReceipt, 
-  resetEposState, 
-  setEposStep 
+  resetEposState 
 } from '../../redux/slices/eposSlice';
 import { 
   Terminal, 
@@ -15,14 +14,12 @@ import {
   CheckCircle2, 
   AlertCircle, 
   RotateCcw, 
-  Package, 
   QrCode, 
   ShoppingBag,
-  ArrowRight,
-  ShieldCheck
+  ArrowRight
 } from 'lucide-react';
 import QRReceiptModal from '../../components/QRReceiptModal';
-import API from '../../services/api';
+import FingerprintScannerModal from '../../components/FingerprintScannerModal';
 
 const EposTerminal = () => {
   const dispatch = useDispatch();
@@ -31,9 +28,9 @@ const EposTerminal = () => {
   const [inputCardNo, setInputCardNo] = useState('RC100200300');
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [sampleBioHash, setSampleBioHash] = useState('FINGERPRINT_MATCH_APPROVED');
-  const [selectedItems, setSelectedItems] = useState({}); // { 'Rice': 15, 'Wheat': 5 }
+  const [selectedItems, setSelectedItems] = useState({});
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [isBioModalOpen, setIsBioModalOpen] = useState(false);
 
   // Step 1: Scan Card
   const handleScan = (e) => {
@@ -51,13 +48,24 @@ const EposTerminal = () => {
     }));
   };
 
+  const handleScannerModalComplete = (hash) => {
+    setSampleBioHash(hash);
+    setIsBioModalOpen(false);
+    // Auto trigger fingerprint verification with scanned hash
+    dispatch(verifyFingerprint({
+      consumerId: scanData.consumer.id,
+      memberId: selectedMemberId || scanData.familyMembers[0]?.id,
+      fingerprintHash: hash
+    }));
+  };
+
   // Item quantity input change
   const handleQtyChange = (item, qty, maxQty) => {
     const val = Math.min(maxQty, Math.max(0, Number(qty)));
     setSelectedItems((prev) => ({ ...prev, [item]: val }));
   };
 
-  // Step 3: Dispense & Trigger Payment
+  // Step 3 & 4: Dispense & Payment
   const handleDispenseAndPay = async () => {
     const itemsArray = Object.entries(selectedItems)
       .filter(([_, qty]) => qty > 0)
@@ -76,7 +84,6 @@ const EposTerminal = () => {
 
     if (dispenseRation.fulfilled.match(res)) {
       const tx = res.payload.transaction;
-      // Generate QR receipt
       const receiptRes = await dispatch(generateReceipt(tx._id));
       if (generateReceipt.fulfilled.match(receiptRes)) {
         setIsReceiptModalOpen(true);
@@ -89,6 +96,7 @@ const EposTerminal = () => {
     setInputCardNo('RC100200300');
     setSelectedItems({});
     setIsReceiptModalOpen(false);
+    setIsBioModalOpen(false);
   };
 
   return (
@@ -180,8 +188,8 @@ const EposTerminal = () => {
             <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mx-auto animate-pulse">
               <Fingerprint className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-slate-100">Step 2: Biometric Fingerprint Check</h3>
-            <p className="text-xs text-slate-400">Academic Prototype: Simulates matching against stored template hash</p>
+            <h3 className="text-lg font-bold text-slate-100">Step 2: Biometric Fingerprint Verification</h3>
+            <p className="text-xs text-slate-400">Scan finger on optical sensor or use WebAuthn hardware device</p>
           </div>
 
           <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2 max-w-lg mx-auto text-xs">
@@ -215,14 +223,24 @@ const EposTerminal = () => {
               </select>
             </div>
 
-            <button
-              onClick={handleVerifyFingerprint}
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-xl shadow-purple-600/25 transition-all flex items-center justify-center gap-2"
-            >
-              <Fingerprint className="w-4 h-4" />
-              {loading ? 'Authenticating Biometrics...' : 'Scan & Verify Fingerprint (Match Hash)'}
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsBioModalOpen(true)}
+                className="py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-xl shadow-purple-600/25 transition-all flex items-center justify-center gap-2"
+              >
+                <Fingerprint className="w-4 h-4" /> Open Scanner Pad
+              </button>
+
+              <button
+                type="button"
+                onClick={handleVerifyFingerprint}
+                disabled={loading}
+                className="py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+              >
+                Quick Auto-Match (Demo)
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -287,6 +305,14 @@ const EposTerminal = () => {
           </button>
         </div>
       )}
+
+      {/* Interactive Fingerprint Scanner Modal */}
+      <FingerprintScannerModal
+        isOpen={isBioModalOpen}
+        onClose={() => setIsBioModalOpen(false)}
+        memberName={scanData?.consumer?.headName}
+        onScanComplete={handleScannerModalComplete}
+      />
 
       {/* QR Receipt Modal */}
       <QRReceiptModal

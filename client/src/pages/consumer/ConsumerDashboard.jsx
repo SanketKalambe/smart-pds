@@ -1,19 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDigitalRationBook } from '../../redux/slices/rationBookSlice';
 import SlotCalendar from '../../components/SlotCalendar';
 import HelplineWidget from '../../components/HelplineWidget';
 import StatusBadge from '../../components/StatusBadge';
-import { BookOpen, Users, Package, Clock, Building2, ShieldCheck, History } from 'lucide-react';
+import FingerprintScannerModal from '../../components/FingerprintScannerModal';
+import API from '../../services/api';
+import { BookOpen, Users, Package, Clock, Building2, ShieldCheck, Fingerprint, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ConsumerDashboard = () => {
   const dispatch = useDispatch();
   const { bookData, loading } = useSelector((state) => state.rationBook);
+  const [isBioModalOpen, setIsBioModalOpen] = useState(false);
+  const [bioSuccessMsg, setBioSuccessMsg] = useState('');
 
   useEffect(() => {
     dispatch(fetchDigitalRationBook());
   }, [dispatch]);
+
+  const handleScanComplete = async (scannedHash) => {
+    try {
+      await API.patch('/consumer/biometric', { fingerprintHash: scannedHash });
+      setBioSuccessMsg('Biometric Fingerprint registered successfully on Ration Card!');
+      dispatch(fetchDigitalRationBook());
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   if (loading || !bookData) {
     return (
@@ -23,7 +37,7 @@ const ConsumerDashboard = () => {
     );
   }
 
-  const { rationCardNo, cardType, headOfHousehold, assignedShop, familyMembers, entitlementSummary, transactionHistory, helplineNumber } = bookData;
+  const { rationCardNo, cardType, headOfHousehold, assignedShop, familyMembers, entitlementSummary, helplineNumber, fingerprintRegistered } = bookData;
 
   return (
     <div className="space-y-8 pb-16">
@@ -39,13 +53,29 @@ const ConsumerDashboard = () => {
             <p className="text-xs text-slate-400">Card Number: <span className="font-mono text-blue-400 font-bold">{rationCardNo}</span> • Head: {headOfHousehold}</p>
           </div>
 
-          <Link
-            to="/consumer/ration-book"
-            className="px-4 py-2 rounded-xl glass-panel border border-slate-700 hover:border-blue-500/40 text-blue-400 text-xs font-bold transition-all self-start sm:self-auto"
-          >
-            View Full Digital Card →
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setIsBioModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 hover:bg-purple-600/30 text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5"
+            >
+              <Fingerprint className="w-4 h-4 text-purple-400" />
+              {fingerprintRegistered ? 'Update Fingerprint' : 'Register Fingerprint'}
+            </button>
+
+            <Link
+              to="/consumer/ration-book"
+              className="px-4 py-2 rounded-xl glass-panel border border-slate-700 hover:border-blue-500/40 text-blue-400 text-xs font-bold transition-all"
+            >
+              View Full Digital Card →
+            </Link>
+          </div>
         </div>
+
+        {bioSuccessMsg && (
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> {bioSuccessMsg}
+          </div>
+        )}
 
         {/* Household Info & Entitlement Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -68,13 +98,19 @@ const ConsumerDashboard = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-800">
-              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-2">
-                <Users className="w-3.5 h-3.5 text-teal-400" />
-                Registered Household Members ({familyMembers.length})
-              </span>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-teal-400" />
+                  Registered Household Members ({familyMembers.length})
+                </span>
+                <span className="text-[10px] font-bold text-purple-400 flex items-center gap-1">
+                  <Fingerprint className="w-3 h-3" /> Biometrics Ready
+                </span>
+              </div>
+
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                 {familyMembers.map((m) => (
-                  <div key={m.id} className="p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between">
+                  <div key={m.id} className="p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between items-center">
                     <span className="text-slate-200 font-semibold">{m.name} ({m.relation})</span>
                     <span className="font-mono text-slate-400">{m.aadhaarMasked}</span>
                   </div>
@@ -130,6 +166,14 @@ const ConsumerDashboard = () => {
       <div className="pt-4">
         <SlotCalendar assignedShop={assignedShop} />
       </div>
+
+      {/* Fingerprint Scanner Modal */}
+      <FingerprintScannerModal
+        isOpen={isBioModalOpen}
+        onClose={() => setIsBioModalOpen(false)}
+        memberName={headOfHousehold}
+        onScanComplete={handleScanComplete}
+      />
 
       {/* Persistent Helpline Footer Widget */}
       <HelplineWidget helplineNumber={helplineNumber} />

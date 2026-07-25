@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  html, body, #root {
+    background-color: #0f172a;
+    color: #f8fafc;
+    min-height: 100%;
+  }
+
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden;
+    @apply overflow-x-hidden;
   }
 }
 

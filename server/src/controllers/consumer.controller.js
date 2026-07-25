@@ -23,7 +23,6 @@ const getRationBook = async (req, res, next) => {
 
     const familyMembers = await FamilyMember.find({ consumerProfile: profile._id });
 
-    // Fetch transactions for the current month to compute remaining entitlement
     const currentMonth = new Date().toISOString().slice(0, 7);
     const monthTransactions = await Transaction.find({
       consumerProfile: profile._id,
@@ -33,7 +32,6 @@ const getRationBook = async (req, res, next) => {
 
     const entitlementSummary = EposStateMachine.calculateEntitlement(profile.rationCardType, monthTransactions);
 
-    // Fetch complete historical transaction log (digital ration book ledger)
     const transactionHistory = await Transaction.find({ consumerProfile: profile._id })
       .populate('shop', 'shopName shopCode')
       .sort({ timestamp: -1 });
@@ -50,6 +48,8 @@ const getRationBook = async (req, res, next) => {
         address: profile.address,
         status: profile.user.status,
         assignedShop: profile.assignedShopId,
+        fingerprintRegistered: !!profile.fingerprintTemplateHash,
+        fingerprintTemplateHash: profile.fingerprintTemplateHash,
         familyMembers: familyMembers.map(m => ({
           id: m._id,
           name: m.name,
@@ -90,7 +90,6 @@ const getConsumerDashboard = async (req, res, next) => {
 
     const entitlementSummary = EposStateMachine.calculateEntitlement(profile.rationCardType, monthTransactions);
 
-    // Fetch active slot booking if any
     const upcomingBooking = await SlotBooking.findOne({
       consumerProfile: profile._id,
       status: 'booked',
@@ -105,7 +104,8 @@ const getConsumerDashboard = async (req, res, next) => {
         rationCardNo: profile.rationCardNo,
         cardType: profile.rationCardType,
         headName: profile.headOfHouseholdName,
-        status: profile.user.status
+        status: profile.user.status,
+        fingerprintRegistered: !!profile.fingerprintTemplateHash
       },
       assignedShop: profile.assignedShopId,
       familyCount: familyMembers.length,
@@ -156,6 +156,30 @@ const addFamilyMember = async (req, res, next) => {
   }
 };
 
+// @desc    Update consumer / member fingerprint biometric hash
+// @route   PATCH /api/consumer/biometric
+// @access  Private (Consumer)
+const updateBiometricFingerprint = async (req, res, next) => {
+  try {
+    const { fingerprintHash, memberId } = req.body;
+    const profile = await ConsumerProfile.findOne({ user: req.user._id });
+    if (!profile) {
+      return res.status(404).json({ success: false, error: 'Consumer profile not found.' });
+    }
+
+    profile.fingerprintTemplateHash = fingerprintHash || `FP_HASH_${Date.now()}`;
+    await profile.save();
+
+    res.json({
+      success: true,
+      message: 'Biometric fingerprint template registered successfully.',
+      fingerprintTemplateHash: profile.fingerprintTemplateHash
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Get transaction receipt details with QR
 // @route   GET /api/consumer/receipts/:id
 // @access  Private (Consumer)
@@ -184,5 +208,6 @@ module.exports = {
   getRationBook,
   getConsumerDashboard,
   addFamilyMember,
+  updateBiometricFingerprint,
   getReceiptById
 };

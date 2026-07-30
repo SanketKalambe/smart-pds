@@ -50,6 +50,30 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'online',
+    system: 'Smart Public Distribution System (Smart PDS) API',
+    timestamp: new Date()
+  });
+});
+
+// Middleware to ensure DB connection on serverless requests
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path === '/health') {
+    try {
+      await connectDB();
+      const userCount = await User.countDocuments();
+      if (userCount === 0) {
+        await seedData(false);
+      }
+    } catch (err) {
+      console.error('DB middleware error:', err);
+    }
+  }
+  next();
+});
+
 // Mounting Domain Routers
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/admin', require('./src/routes/admin.routes'));
@@ -84,7 +108,7 @@ const startServer = (portToTry) => {
   });
 };
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   connectDB().then(async () => {
     const userCount = await User.countDocuments();
     if (userCount === 0) {

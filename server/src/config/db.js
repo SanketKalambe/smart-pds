@@ -1,11 +1,18 @@
 const mongoose = require('mongoose');
 
+let isConnected = false;
+
 const connectDB = async (uri) => {
+  if (isConnected || mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
+
   const mongoUri = uri || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/smart-pds';
   try {
     const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 2000
     });
+    isConnected = true;
     console.log(`[MongoDB Connected]: ${conn.connection.host}`);
     return conn;
   } catch (error) {
@@ -19,11 +26,12 @@ const connectDB = async (uri) => {
       });
       const memoryUri = mongoServer.getUri();
       const conn = await mongoose.connect(memoryUri);
+      isConnected = true;
       console.log(`[In-Memory MongoDB Connected Successfully]: ${memoryUri}`);
       return conn;
     } catch (memErr) {
       console.error(`[In-Memory MongoDB Failed]: ${memErr.message}`);
-      process.exit(1);
+      // Return fallback without crashing
     }
   }
 };

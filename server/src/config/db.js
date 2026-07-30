@@ -16,7 +16,6 @@ const connectDB = async (uri) => {
     if (process.env.VERCEL) {
       throw new Error('MONGODB_URI environment variable is missing on Vercel.');
     }
-    // Fallback for local development
     return connectMemoryDB();
   }
 
@@ -26,7 +25,7 @@ const connectDB = async (uri) => {
       connectTimeoutMS: 10000
     });
     isConnected = true;
-    console.log(`[MongoDB Connected Successfully]: ${conn.connection.host}`);
+    console.log(`[MongoDB Atlas Connected Successfully]: ${conn.connection.host}`);
     return conn;
   } catch (error) {
     console.error(`[MongoDB Atlas Connection Failure]: ${error.message}`);

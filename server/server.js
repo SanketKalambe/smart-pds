@@ -71,7 +71,7 @@ app.use(async (req, res, next) => {
       console.error('DB Middleware Connection Error:', err.message);
       return res.status(503).json({
         success: false,
-        error: 'Database connection not available. Please set MONGODB_URI in Vercel Environment Variables.'
+        error: `Database connection error: ${err.message}`
       });
     }
   }

@@ -1,20 +1,20 @@
-# Smart Public Distribution System (Smart PDS)
+# Smart Public Distribution System (Smart PDS) Management System
 
 > **A Web-Based e-POS Integrated Platform for Transparent Ration Distribution and Digital Consumer Services**  
-> *Final-Year Major Project Implementation*
+> *Final-Year Computer Science Engineering Major Project Implementation*
 
 ---
 
 ## 🌟 Key Features
 
 - 🔐 **Secure Role-Based Access Control**: Government Admin, FPS Distributor, and Consumer portals enforced via JWT middleware.
-- 🛡️ **AES-256 Field-Level Aadhaar Encryption**: Aadhaar numbers encrypted at rest in MongoDB; only masked values (`XXXX XXXX 1234`) returned.
+- 🛡️ **AES-256 Field-Level Aadhaar Encryption**: Aadhaar numbers encrypted at rest in MongoDB; only masked values (`XXXX XXXX 1234`) returned in API responses.
 - 📜 **Digital Ration Book**: Interactive household entitlement, family member management, card type classification (AAY / BPL / APL), and transaction history ledger.
 - 📅 **Atomic Capacity-Enforced Slot Booking**: Time slot reservation per shop with atomic MongoDB capacity checks (`30 spots/slot`) to eliminate overbooking under concurrent requests.
-- 🖥️ **e-POS Hardware Terminal Simulator**: Guided 5-step prototype workflow (`scan` → `verify` → `dispense` → `pay` → `receipt`) with simulated biometric fingerprint matching.
-- 💬 **Assisted Complaint Chatbox**: Keyword & NLP suggestion engine automatically classifying grievance categories with Cloudinary photo/video attachments.
+- 🖥️ **e-POS Hardware Terminal Simulator**: Guided 5-step prototype workflow (`scan` → `verify` → `dispense` → `pay` → `receipt`) with interactive optical & WebAuthn biometric fingerprint authentication.
+- 💬 **Assisted Complaint Chatbox**: Keyword & NLP suggestion engine automatically classifying grievance categories with photo/video attachments.
 - 💳 **Razorpay Sandbox & QR Receipts**: Digital test payments and server-side generated QR code printable receipts.
-- 📊 **Government Admin Suite**: Interactive KYC Verification Queue for pending registrations, stock allocation, helpline settings, and visual distribution analytics.
+- 📊 **Government Admin Suite**: Interactive KYC Verification Queue for pending registrations, stock allocation, helpline settings, and visual distribution analytics charts.
 
 ---
 
@@ -24,26 +24,28 @@
 smart-pds/
 ├── client/                     # React.js (Vite) + Tailwind CSS + Redux Toolkit
 │   ├── src/
-│   │   ├── components/         # AadhaarInput, FamilyMemberForm, SlotCalendar, HelplineWidget, Navbar, Sidebar
+│   │   ├── components/         # AadhaarInput, FamilyMemberForm, SlotCalendar, HelplineWidget, FingerprintScannerModal
 │   │   ├── pages/
 │   │   │   ├── admin/          # AdminDashboard, VerificationQueue, StockAllocation, AdminComplaints, Settings
 │   │   │   ├── auth/           # LoginPage, DistributorRegister, ConsumerRegister
 │   │   │   ├── distributor/    # DistributorDashboard, EposTerminal, DistributorStock, DistributorSlots
 │   │   │   └── consumer/       # ConsumerDashboard, RationBookPage, SlotBookingPage, ComplaintChatbox, History
 │   │   ├── redux/              # Redux slices for auth, slots, epos, complaints, admin
-│   │   ├── services/           # Axios API service layer
+      │   ├── services/           # Axios API service layer
 │   │   └── routes/             # Role-protected routes
 ├── server/                     # Node.js + Express.js + MongoDB (Mongoose)
+│   ├── api/                    # Vercel Serverless Function entrypoint
 │   ├── src/
 │   │   ├── config/             # DB connection & default entitlement settings
 │   │   ├── controllers/        # Auth, Admin, Distributor, Consumer, e-POS, Slot, Complaint, Payment
 │   │   ├── middleware/         # Auth JWT, Role check, Field Encryption, Error Handler, Validator
 │   │   ├── models/             # Mongoose schemas for User, Ration Book, Shop, Transactions, Slots, Complaints
 │   │   ├── routes/             # Express Routers
-│   │   └── services/           # e-POS state machine, AES encryption, KYC mock check, QR generator, OTP
+      │   └── services/           # e-POS state machine, AES encryption, KYC mock check, QR generator, OTP
 │   ├── seed/                   # Seed script with realistic mock data
 │   └── tests/                  # Jest + Supertest unit & concurrency test suites
 ├── docs/                       # Postman API Collection
+├── vercel.json                 # Unified Vercel deployment configuration
 ├── PROTOTYPE_NOTES.md          # Viva defense guide & prototype architectural decisions
 └── README.md
 ```
@@ -98,20 +100,33 @@ npm run dev
 
 ---
 
-## 🔑 Demo Login Credentials (Seeded)
+## 🔑 Pre-Configured Seed Demo Credentials
 
-| Role | Email / ID | Password | Access & Features |
-|---|---|---|---|
-| **Government Admin** | `admin@smartpds.gov.in` | `Admin@123` | KYC Verification Queue, Stock Allocation, Grievance Management, Analytics |
-| **FPS Distributor** | `distributor@example.com` | `Distributor@123` | e-POS Terminal Simulator, Inventory Stock, Slot Bookings |
-| **Consumer (AAY)** | `consumer@example.com` (or Ration Card `RC100200300`) | `Consumer@123` | Digital Ration Book, Date & Time Slot Reservation, Complaint Chatbox |
+| Role | Login Identity | Password | Portal Permissions |
+| :--- | :--- | :--- | :--- |
+| **Government Admin** | `admin@smartpds.gov.in` | `Admin@123` | Full access to KYC queue, stock allocations, helpline settings, & analytics |
+| **FPS Distributor** | `distributor@example.com` | `Distributor@123` | Access to e-POS machine terminal, shop inventory, & slot schedules |
+| **Consumer (Ration Card)** | `consumer@example.com` (or Card `RC100200300`) | `Consumer@123` | Access to Digital Ration Book, Slot Booking calendar, & Complaint Chatbox |
 
 ---
 
-## 🧪 Running Automated Tests
+## 🧪 Automated Tests Execution
+
+To run the automated Jest test suite:
 
 ```bash
 cd server
 npm test
 ```
-*Executes unit tests covering AES-256 Aadhaar encryption/masking, e-POS state transitions, and MongoDB atomic slot capacity concurrency.*
+
+*Runs unit and integration tests for authentication, AES-256 encryption, atomic slot concurrency, and 5-step e-POS state machine.*
+
+---
+
+## 🚀 Live Deployment on Vercel
+
+The project is pre-configured for Vercel deployment with serverless Express API endpoints and Vite React static assets:
+
+1. Import repository `SanketKalambe/smart-pds` on [Vercel](https://vercel.com/new).
+2. Set Environment Variable: `MONGODB_URI` = `<Your MongoDB Atlas Connection String>`.
+3. Click **Deploy**.

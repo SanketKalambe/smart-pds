@@ -198,21 +198,7 @@ const registerConsumer = async (req, res, next) => {
 // @access  Public
 const login = async (req, res, next) => {
   try {
-    const { email, password, rationCardNo } = req.body;
 
-    let user;
-    if (rationCardNo) {
-      const profile = await ConsumerProfile.findOne({ rationCardNo: rationCardNo.trim() });
-      if (profile) {
-        user = await User.findById(profile.user);
-      }
-    } else if (email) {
-      user = await User.findOne({ email: email.toLowerCase().trim() });
-    }
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials. User not found.' });
-    }
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {

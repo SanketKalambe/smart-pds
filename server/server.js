@@ -13,11 +13,15 @@ dotenv.config();
 const app = express();
 
 // Security Headers
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// CORS configuration
+// Dynamic CORS configuration (Allows browser credentials with dynamic origin reflection)
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
   credentials: true
 }));
 

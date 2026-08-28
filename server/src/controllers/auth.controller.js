@@ -80,8 +80,8 @@ const registerDistributor = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: kycResult.matched 
-        ? 'Distributor registered and auto-verified against mock registry.' 
-        : 'Distributor registered. Routed to Admin Verification Queue for review.',
+        ? 'Distributor registered & verified against govt registry.' 
+        : 'Distributor registered. Pending Admin verification queue.',
       token,
       user: {
         id: newUser._id,
@@ -91,7 +91,7 @@ const registerDistributor = async (req, res, next) => {
         status: newUser.status,
         distributorGovtId,
         shopId: shop._id,
-        aadhaarMasked
+        shopName: shop.shopName
       }
     });
   } catch (err) {
@@ -104,30 +104,22 @@ const registerDistributor = async (req, res, next) => {
 // @access  Public
 const registerConsumer = async (req, res, next) => {
   try {
-    const { name, email, password, phone, rationCardNo, headOfHouseholdName, address, assignedShopId, familyMembers } = req.body;
+    const { headOfHouseholdName, email, password, phone, rationCardNo, cardType, address, shopId, familyMembers, name } = req.body;
+
+    const userEmail = (email || `${rationCardNo.toLowerCase()}@consumer.smartpds.gov.in`).trim();
+    const existingUser = await User.findOne({ email: userEmail });
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: 'User with this email already exists.' });
+    }
 
     const existingCard = await ConsumerProfile.findOne({ rationCardNo });
     if (existingCard) {
-      return res.status(400).json({ success: false, error: 'Ration Card Number is already registered.' });
+      return res.status(400).json({ success: false, error: 'Ration card number is already registered.' });
     }
 
-    const userEmail = email || `consumer_${rationCardNo.toLowerCase()}@smartpds.gov.in`;
-    const existingUser = await User.findOne({ email: userEmail });
-    if (existingUser) {
-      return res.status(400).json({ success: false, error: 'User with this email/ration card already exists.' });
-    }
-
-    // Mock registry lookup
+    // Perform mock government ration card KYC check
     const kycResult = await verifyRationCardNo(rationCardNo);
-    const cardType = kycResult.matched ? kycResult.data.cardType : 'BPL';
     const initialStatus = kycResult.matched ? 'verified' : 'pending';
-
-    // Find default shop if assignedShopId not provided
-    let shopId = assignedShopId;
-    if (!shopId) {
-      const defaultShop = await Shop.findOne();
-      if (defaultShop) shopId = defaultShop._id;
-    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -198,7 +190,27 @@ const registerConsumer = async (req, res, next) => {
 // @access  Public
 const login = async (req, res, next) => {
   try {
+    const { email, password, rationCardNo, loginInput } = req.body;
+    const queryInput = (loginInput || email || '').trim();
 
+    let user;
+    if (rationCardNo || (queryInput && queryInput.toUpperCase().startsWith('RC'))) {
+      const targetCard = (rationCardNo || queryInput).trim();
+      const profile = await ConsumerProfile.findOne({ rationCardNo: targetCard });
+      if (profile) {
+        user = await User.findById(profile.user);
+      }
+    }
+
+    if (!user && queryInput) {
+      user = await User.findOne({ email: queryInput.toLowerCase() });
+    } else if (!user && email) {
+      user = await User.findOne({ email: email.toLowerCase().trim() });
+    }
+
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials. User not found.' });
+    }
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {

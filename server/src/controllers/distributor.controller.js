@@ -103,8 +103,53 @@ const getTodaySlots = async (req, res, next) => {
   }
 };
 
+// @desc    Get Distributor Dashboard summary
+// @route   GET /api/distributor/dashboard
+// @access  Private (Distributor)
+const getDistributorDashboard = async (req, res, next) => {
+  try {
+    const profile = await DistributorProfile.findOne({ user: req.user._id }).populate('shopId');
+    if (!profile || !profile.shopId) {
+      return res.status(404).json({ success: false, error: 'Shop profile not found for distributor.' });
+    }
+
+    const shop = profile.shopId;
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    const todaySlotCount = await SlotBooking.countDocuments({
+      shop: shop._id,
+      date: dateStr,
+      status: { $ne: 'cancelled' }
+    });
+
+    const monthlyDistributionCount = await Transaction.countDocuments({
+      shop: shop._id,
+      status: 'completed'
+    });
+
+    const stockSummary = shop.stockAvailability || [];
+
+    res.json({
+      success: true,
+      shop: {
+        _id: shop._id,
+        shopName: shop.shopName,
+        shopCode: shop.shopCode,
+        address: shop.address,
+        wardDistrict: shop.wardDistrict
+      },
+      stockSummary,
+      todaySlotCount,
+      monthlyDistributionCount
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getStock,
   updateStock,
-  getTodaySlots
+  getTodaySlots,
+  getDistributorDashboard
 };

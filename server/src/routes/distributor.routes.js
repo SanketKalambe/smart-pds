@@ -5,11 +5,13 @@ const { requireRole } = require('../middleware/role.middleware');
 const {
   getStock,
   updateStock,
-  getTodaySlots
+  getTodaySlots,
+  getDistributorDashboard
 } = require('../controllers/distributor.controller');
 
 router.use(protect, requireRole('distributor'));
 
+router.get('/dashboard', getDistributorDashboard);
 router.get('/stock', getStock);
 router.patch('/stock', updateStock);
 router.get('/slots', getTodaySlots);

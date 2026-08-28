@@ -10,36 +10,7 @@ const DistributorDashboard = () => {
   const [isBioModalOpen, setIsBioModalOpen] = useState(false);
   const [lastVerifiedHash, setLastVerifiedHash] = useState(null);
 
-  const fetchDashboard = async () => {
-    try {
-      const res = await API.get('/distributor/dashboard');
-      setDashboardData(res.data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const handleScanComplete = (scannedHash) => {
-    setLastVerifiedHash({
-      hash: scannedHash,
-      timestamp: new Date().toLocaleTimeString(),
-      status: 'AUTHENTICATED'
-    });
-  };
-
-  if (loading || !dashboardData) {
-    return (
-      <div className="text-center py-16 text-slate-400 text-xs animate-pulse">
-        Loading Shop Dashboard & Inventory...
-      </div>
-    );
-  }
 
   const { shop, stockSummary, todaySlotCount, monthlyDistributionCount } = dashboardData;
 

@@ -6,12 +6,12 @@ const {
   getStock,
   updateStock,
   getTodaySlots,
-  getDistributorDashboard
+  getDashboard
 } = require('../controllers/distributor.controller');
 
 router.use(protect, requireRole('distributor'));
 
-router.get('/dashboard', getDistributorDashboard);
+router.get('/dashboard', getDashboard);
 router.get('/stock', getStock);
 router.patch('/stock', updateStock);
 router.get('/slots', getTodaySlots);

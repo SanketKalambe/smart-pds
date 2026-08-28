@@ -10,9 +10,30 @@ const DistributorDashboard = () => {
   const [isBioModalOpen, setIsBioModalOpen] = useState(false);
   const [lastVerifiedHash, setLastVerifiedHash] = useState(null);
 
+  const fetchDashboard = async () => {
+    try {
+      const res = await API.get('/distributor/dashboard');
+      setDashboardData(res.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const handleScanComplete = (scannedHash) => {
+    setLastVerifiedHash({
+      hash: scannedHash,
+      timestamp: new Date().toLocaleTimeString(),
+      status: 'AUTHENTICATED'
+    });
+  };
 
 
-  const { shop, stockSummary, todaySlotCount, monthlyDistributionCount } = dashboardData;
 
   return (
     <div className="space-y-6">

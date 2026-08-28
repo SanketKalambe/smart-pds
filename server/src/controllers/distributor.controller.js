@@ -103,14 +103,14 @@ const getTodaySlots = async (req, res, next) => {
   }
 };
 
-// @desc    Get Distributor Dashboard summary
+// @desc    Get distributor dashboard overview
 // @route   GET /api/distributor/dashboard
 // @access  Private (Distributor)
-const getDistributorDashboard = async (req, res, next) => {
+const getDashboard = async (req, res, next) => {
   try {
     const profile = await DistributorProfile.findOne({ user: req.user._id }).populate('shopId');
     if (!profile || !profile.shopId) {
-      return res.status(404).json({ success: false, error: 'Shop profile not found for distributor.' });
+      return res.status(404).json({ success: false, error: 'Shop profile not found for this distributor.' });
     }
 
     const shop = profile.shopId;
@@ -123,11 +123,8 @@ const getDistributorDashboard = async (req, res, next) => {
     });
 
     const monthlyDistributionCount = await Transaction.countDocuments({
-      shop: shop._id,
-      status: 'completed'
+      shop: shop._id
     });
-
-    const stockSummary = shop.stockAvailability || [];
 
     res.json({
       success: true,
@@ -136,9 +133,10 @@ const getDistributorDashboard = async (req, res, next) => {
         shopName: shop.shopName,
         shopCode: shop.shopCode,
         address: shop.address,
-        wardDistrict: shop.wardDistrict
+        wardDistrict: shop.wardDistrict,
+        stockAvailability: shop.stockAvailability
       },
-      stockSummary,
+      stockSummary: shop.stockAvailability || [],
       todaySlotCount,
       monthlyDistributionCount
     });
@@ -151,5 +149,5 @@ module.exports = {
   getStock,
   updateStock,
   getTodaySlots,
-  getDistributorDashboard
+  getDashboard
 };

@@ -35,9 +35,9 @@ const LoginPage = () => {
     let payload = {};
     if (type === 'admin') {
       setLoginType('email');
-      setEmail('admin@smartpds.gov.in');
+      setEmail('admin@rationsetu.gov.in');
       setPassword('Admin@123');
-      payload = { email: 'admin@smartpds.gov.in', password: 'Admin@123' };
+      payload = { email: 'admin@rationsetu.gov.in', password: 'Admin@123' };
     } else if (type === 'distributor') {
       setLoginType('email');
       setEmail('distributor@example.com');
@@ -66,7 +66,7 @@ const LoginPage = () => {
           <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mx-auto">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-100 font-['Outfit']">Sign In to Smart PDS</h2>
+          <h2 className="text-2xl font-extrabold text-slate-100 font-['Outfit']">Sign In to RationSetu</h2>
           <p className="text-xs text-slate-400">Access Government Admin, Distributor or Digital Ration Book</p>
         </div>
 
@@ -107,7 +107,7 @@ const LoginPage = () => {
                 <input
                   type="email"
                   required
-                  placeholder="admin@smartpds.gov.in"
+                  placeholder="admin@rationsetu.gov.in"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono"

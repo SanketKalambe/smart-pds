@@ -1,4 +1,4 @@
-# Smart Public Distribution System (Smart PDS) Management System
+# RationSetu Public Distribution System Management System
 
 > **A Web-Based e-POS Integrated Platform for Transparent Ration Distribution and Digital Consumer Services**  
 > *Final-Year Computer Science Engineering Major Project Implementation*
@@ -21,7 +21,7 @@
 ## 📁 Repository Structure
 
 ```
-smart-pds/
+rationsetu/
 ├── client/                     # React.js (Vite) + Tailwind CSS + Redux Toolkit
 │   ├── src/
 │   │   ├── components/         # AadhaarInput, FamilyMemberForm, SlotCalendar, HelplineWidget, FingerprintScannerModal
@@ -104,7 +104,7 @@ npm run dev
 
 | Role | Login Identity | Password | Portal Permissions |
 | :--- | :--- | :--- | :--- |
-| **Government Admin** | `admin@smartpds.gov.in` | `Admin@123` | Full access to KYC queue, stock allocations, helpline settings, & analytics |
+| **Government Admin** | `admin@rationsetu.gov.in` | `Admin@123` | Full access to KYC queue, stock allocations, helpline settings, & analytics |
 | **FPS Distributor** | `distributor@example.com` | `Distributor@123` | Access to e-POS machine terminal, shop inventory, & slot schedules |
 | **Consumer (Ration Card)** | `consumer@example.com` (or Card `RC100200300`) | `Consumer@123` | Access to Digital Ration Book, Slot Booking calendar, & Complaint Chatbox |
 
@@ -127,6 +127,6 @@ npm test
 
 The project is pre-configured for Vercel deployment with serverless Express API endpoints and Vite React static assets:
 
-1. Import repository `SanketKalambe/smart-pds` on [Vercel](https://vercel.com/new).
+1. Import repository `SanketKalambe/rationsetu` on [Vercel](https://vercel.com/new).
 2. Set Environment Variable: `MONGODB_URI` = `<Your MongoDB Atlas Connection String>`.
 3. Click **Deploy**.

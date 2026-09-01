@@ -12,7 +12,7 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'smart_pds_jwt_secret_key_2026_super_secure');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'rationsetu_jwt_secret_key_2026_super_secure');
     req.user = await User.findById(decoded.id).select('-passwordHash');
     
     if (!req.user) {

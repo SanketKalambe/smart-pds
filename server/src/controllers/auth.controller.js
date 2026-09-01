@@ -10,7 +10,7 @@ const { verifyDistributorGovtId, verifyRationCardNo } = require('../services/kyc
 const { generateOtp, verifyOtp } = require('../services/otp.service');
 
 const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'smart_pds_jwt_secret_key_2026_super_secure', {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'rationsetu_jwt_secret_key_2026_super_secure', {
     expiresIn: process.env.JWT_EXPIRE || '24h'
   });
 };

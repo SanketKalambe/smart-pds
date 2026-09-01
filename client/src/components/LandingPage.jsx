@@ -18,7 +18,7 @@ const LandingPage = () => {
         </h1>
 
         <p className="text-sm sm:text-base text-slate-400 font-normal leading-relaxed">
-          Smart PDS connects Government Administrators, Fair Price Shop Distributors, and Beneficiary Consumers into a single transparent digital ecosystem featuring Digital Ration Books, Slot Reservations, and Biometric e-POS terminals.
+          RationSetu connects Government Administrators, Fair Price Shop Distributors, and Beneficiary Consumers into a single transparent digital ecosystem featuring Digital Ration Books, Slot Reservations, and Biometric e-POS terminals.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">

@@ -1,8 +1,8 @@
-# Smart PDS — Academic Prototype & Viva Defense Notes
+# RationSetu — Academic Prototype & Viva Defense Notes
 
 ## Overview for Viva Defense
 
-Smart PDS enhances the existing government Public Distribution System by unifying Administrators, Fair Price Shop Distributors, and Consumers into a single web application.
+RationSetu enhances the existing government Public Distribution System by unifying Administrators, Fair Price Shop Distributors, and Consumers into a single web application.
 
 ---
 

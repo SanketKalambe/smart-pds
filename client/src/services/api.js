@@ -8,7 +8,7 @@ const API = axios.create({
 // Request Interceptor: Attach JWT Token
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('smart_pds_token');
+    const token = localStorage.getItem('rationsetu_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -22,8 +22,8 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('smart_pds_token');
-      localStorage.removeItem('smart_pds_user');
+      localStorage.removeItem('rationsetu_token');
+      localStorage.removeItem('rationsetu_user');
     }
     return Promise.reject(error);
   }

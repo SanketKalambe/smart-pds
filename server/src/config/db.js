@@ -43,7 +43,7 @@ const connectMemoryDB = async () => {
   try {
     const { MongoMemoryServer } = require('mongodb-memory-server');
     const mongoServer = await MongoMemoryServer.create({
-      instance: { dbName: 'smart-pds' }
+      instance: { dbName: 'rationsetu' }
     });
     const memoryUri = mongoServer.getUri();
     const conn = await mongoose.connect(memoryUri);

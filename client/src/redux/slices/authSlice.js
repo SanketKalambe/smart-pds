@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../../services/api';
 
-const savedToken = localStorage.getItem('smart_pds_token') || null;
+const savedToken = localStorage.getItem('rationsetu_token') || null;
 
 let savedUser = null;
 try {
-  const rawUser = localStorage.getItem('smart_pds_user');
+  const rawUser = localStorage.getItem('rationsetu_user');
   if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
     savedUser = JSON.parse(rawUser);
   }
@@ -17,8 +17,8 @@ export const loginUser = createAsyncThunk('auth/login', async (credentials, { re
   try {
     const response = await API.post('/auth/login', credentials);
     const { token, user } = response.data;
-    localStorage.setItem('smart_pds_token', token);
-    localStorage.setItem('smart_pds_user', JSON.stringify(user));
+    localStorage.setItem('rationsetu_token', token);
+    localStorage.setItem('rationsetu_user', JSON.stringify(user));
     return { token, user };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || 'Login failed.');
@@ -29,8 +29,8 @@ export const registerDistributor = createAsyncThunk('auth/registerDistributor', 
   try {
     const response = await API.post('/auth/distributor/register', data);
     const { token, user, message } = response.data;
-    localStorage.setItem('smart_pds_token', token);
-    localStorage.setItem('smart_pds_user', JSON.stringify(user));
+    localStorage.setItem('rationsetu_token', token);
+    localStorage.setItem('rationsetu_user', JSON.stringify(user));
     return { token, user, message };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.details?.[0] || 'Registration failed.');
@@ -41,8 +41,8 @@ export const registerConsumer = createAsyncThunk('auth/registerConsumer', async 
   try {
     const response = await API.post('/auth/consumer/register', data);
     const { token, user, message } = response.data;
-    localStorage.setItem('smart_pds_token', token);
-    localStorage.setItem('smart_pds_user', JSON.stringify(user));
+    localStorage.setItem('rationsetu_token', token);
+    localStorage.setItem('rationsetu_user', JSON.stringify(user));
     return { token, user, message };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.details?.[0] || 'Registration failed.');
@@ -64,8 +64,8 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
       state.registrationMessage = null;
-      localStorage.removeItem('smart_pds_token');
-      localStorage.removeItem('smart_pds_user');
+      localStorage.removeItem('rationsetu_token');
+      localStorage.removeItem('rationsetu_user');
     },
     clearAuthError: (state) => {
       state.error = null;

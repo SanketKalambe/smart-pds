@@ -1,7 +1,7 @@
 {
-  "name": "smart-pds-server",
+  "name": "rationsetu-server",
   "version": "1.0.0",
-  "description": "Backend server for Smart Public Distribution System (Smart PDS)",
+  "description": "Backend server for RationSetu Public Distribution System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

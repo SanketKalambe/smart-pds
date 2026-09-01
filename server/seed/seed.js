@@ -24,7 +24,7 @@ const { TIME_SLOTS } = require('../src/config/settings');
 const seedData = async (exitProcess = true) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      await connectDB(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/smart-pds');
+      await connectDB(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/rationsetu');
     }
 
     console.log('Clearing existing collections...');
@@ -95,7 +95,7 @@ const seedData = async (exitProcess = true) => {
     const adminPasswordHash = await bcrypt.hash('Admin@123', 10);
     const adminUser = await User.create({
       name: 'Central PDS Administrator',
-      email: 'admin@smartpds.gov.in',
+      email: 'admin@rationsetu.gov.in',
       passwordHash: adminPasswordHash,
       role: 'admin',
       phone: '9876543210',
@@ -256,7 +256,7 @@ const seedData = async (exitProcess = true) => {
     console.log('====================================================');
     console.log('  SMART PDS DATABASE SEEDED SUCCESSFULLY!');
     console.log('====================================================');
-    console.log('  Admin Login       : admin@smartpds.gov.in / Admin@123');
+    console.log('  Admin Login       : admin@rationsetu.gov.in / Admin@123');
     console.log('  Distributor Login : distributor@example.com / Distributor@123');
     console.log('  Consumer Login    : consumer@example.com / Consumer@123');
     console.log('====================================================');

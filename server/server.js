@@ -49,7 +49,7 @@ app.use('/api/auth/', authLimiter);
 app.get('/health', (req, res) => {
   res.json({
     status: 'online',
-    system: 'Smart Public Distribution System (Smart PDS) API',
+    system: 'RationSetu Public Distribution System API',
     timestamp: new Date()
   });
 });
@@ -57,7 +57,7 @@ app.get('/health', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    system: 'Smart Public Distribution System (Smart PDS) API',
+    system: 'RationSetu Public Distribution System API',
     timestamp: new Date()
   });
 });
@@ -100,7 +100,7 @@ let PORT = process.env.PORT || 5000;
 const startServer = (portToTry) => {
   const server = app.listen(portToTry, () => {
     console.log(`====================================================`);
-    console.log(`  Smart PDS Server running on port: ${portToTry}`);
+    console.log(`  RationSetu Server running on port: ${portToTry}`);
     console.log(`  API Base URL: http://localhost:${portToTry}/api`);
     console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`====================================================`);
